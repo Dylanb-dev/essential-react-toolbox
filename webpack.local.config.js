@@ -7,7 +7,8 @@ module.exports = {
   context: __dirname,
   devtool: 'inline-source-map',
   entry: [
-    'webpack-hot-middleware/client',
+    'webpack-dev-server/client?http://localhost:9090',
+    'webpack/hot/only-dev-server',
     './src/index.jsx',
   ],
   output: {

@@ -1,34 +1,43 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-
+const path = require('path');
+const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 /**
  * This is the Webpack configuration file for production.
  */
+
 module.exports = {
-  entry: "./src/main",
+  entry: './src/index.jsx',
 
   output: {
     path: __dirname + "/build/",
-    filename: "app.js"
+    filename: "app.js",
   },
 
   plugins: [
-    new ExtractTextPlugin('style.css', { allChunks: true })
+    new ExtractTextPlugin('style.css', { allChunks: true }),
   ],
 
-  module: {
-    loaders: [
-      { test: /\.jsx?$/, exclude: /node_modules/, loader: "babel-loader?presets[]=es2015,presets[]=react,presets[]=stage-0,plugins[]=transform-runtime" },
-      { test: /\.css$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader') }
-    ]
-  },
-
   resolve: {
-    extensions: ['', '.js', '.jsx', '.css']
+    extensions: ['', '.jsx', '.scss', '.js', '.json'],
   },
-
-  postcss: [
-    require('autoprefixer'),
-    require('postcss-nested')
-  ]
-}
+  module: {
+    loaders: [{
+      test: /(\.js|\.jsx)$/,
+      exclude: /(node_modules)/,
+      loader: 'babel',
+      query: {
+        presets: ['es2015', 'react']
+      }
+    }, {
+      test: /(\.scss|\.css)$/,
+      loader: ExtractTextPlugin.extract('style', 'css?sourceMap&modules&\
+ importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]\
+ !postcss!sass?sourceMap!toolbox')
+    }]
+  },
+  toolbox: {
+    theme: path.join(__dirname, 'src/toolbox-theme.scss')
+  },
+  postcss: [autoprefixer]
+};
