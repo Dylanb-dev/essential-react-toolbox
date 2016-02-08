@@ -1,60 +1,54 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-/**
- * This is the Webpack configuration file for local development. It contains
- * local-specific configuration such as the React Hot Loader, as well as:
- *
- * - The entry point of the application
- * - Where the output file should be
- * - Which loaders to use on what files to properly transpile the source
- *
- * For more information, see: http://webpack.github.io/docs/configuration.html
- */
 module.exports = {
-
-  // Efficiently evaluate modules with source maps
-  devtool: "eval",
-
-  // Set entry point to ./src/main and include necessary files for hot load
-  entry:  [
-    "webpack-dev-server/client?http://localhost:9090",
-    "webpack/hot/only-dev-server",
-    "./src/main"
+  context: __dirname,
+  devtool: 'inline-source-map',
+  entry: [
+    'webpack-hot-middleware/client',
+    './src/index.jsx',
   ],
-
-  // This will not actually create a bundle.js file in ./build. It is used
-  // by the dev server for dynamic hot loading.
   output: {
-    path: __dirname + "/build/",
-    filename: "app.js",
-    publicPath: "http://localhost:9090/build/"
+    path: path.join(__dirname, 'build'),
+    filename: 'app.js',
+    publicPath: '/',
   },
-
-  // Necessary plugins for hot load
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('style.css', { allChunks: true })
-  ],
-
-  // Transform source code using Babel and React Hot Loader
+  resolve: {
+    extensions: ['', '.jsx', '.scss', '.js', '.json'],
+    modulesDirectories: [
+      'node_modules',
+      path.resolve(__dirname, './node_modules'),
+    ],
+  },
   module: {
     loaders: [
-      { test: /\.jsx?$/, exclude: /node_modules/, loaders: ["react-hot", "babel-loader?presets[]=es2015,presets[]=react,presets[]=stage-0,plugins[]=transform-runtime"] },
-      { test: /\.css$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader') }
+      {
+        test: /(\.js|\.jsx)$/,
+        exclude: /(node_modules)/,
+        loader: 'babel',
+        query: {
+           presets:['es2015','react']
+        }
+      }, {
+        test: /(\.scss|\.css)$/,
+        loader: ExtractTextPlugin.extract('style', 'css?sourceMap&modules&\
+importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]\
+!postcss!sass?sourceMap!toolbox')
+      }
     ]
   },
-
-  // Automatically transform files with these extensions
-  resolve: {
-    extensions: ['', '.js', '.jsx', '.css']
+  toolbox: {
+    theme: path.join(__dirname, 'src/toolbox-theme.scss')
   },
-
-  // Additional plugins for CSS post processing using postcss-loader
-  postcss: [
-    require('autoprefixer'), // Automatically include vendor prefixes
-    require('postcss-nested') // Enable nested rules, like in Sass
+  postcss: [autoprefixer],
+  plugins: [
+    new ExtractTextPlugin('style.css', { allChunks: true }),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify('development')
+    })
   ]
-
-}
+};
