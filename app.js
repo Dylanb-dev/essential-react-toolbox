@@ -47,7 +47,7 @@ app.get('*', function(req, res) {
  *************************************************************/
 
 if (!process.env.PRODUCTION) {
-
+  console.log('webpack modo');
   new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
     hot: true,
@@ -67,10 +67,10 @@ if (!process.env.PRODUCTION) {
  *
  *****************/
 
-const port = process.env.PORT || 8080;
+let port = process.env.PORT || 8080;
 const server = app.listen(port, function () {
   const host = server.address().address;
-  const port = server.address().port;
+  port = server.address().port;
 
   console.log('Essential React listening at http://%s:%s', host, port);
 });

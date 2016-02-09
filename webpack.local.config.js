@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
-const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
 
 module.exports = {
   context: __dirname,
@@ -9,12 +9,12 @@ module.exports = {
   entry: [
     'webpack-dev-server/client?http://localhost:9090',
     'webpack/hot/only-dev-server',
-    './src/index.jsx',
+    './src/app.jsx',
   ],
   output: {
-    path: path.join(__dirname, 'build'),
+    path: __dirname + '/build/',
     filename: 'app.js',
-    publicPath: '/',
+    publicPath: 'http://localhost:9090/build/',
   },
   resolve: {
     extensions: ['', '.jsx', '.scss', '.js', '.json'],
@@ -28,11 +28,10 @@ module.exports = {
       {
         test: /(\.js|\.jsx)$/,
         exclude: /(node_modules)/,
-        loader: 'babel',
-        query: {
-           presets:['es2015','react']
-        }
-      }, {
+        loaders: ['react-hot', 'babel-loader?presets[]=es2015\
+,presets[]=react,presets[]=stage-0,plugins[]=transform-runtime']
+      },
+{
         test: /(\.scss|\.css)$/,
         loader: ExtractTextPlugin.extract('style', 'css?sourceMap&modules&\
 importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]\
@@ -43,13 +42,13 @@ importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]\
   toolbox: {
     theme: path.join(__dirname, 'src/toolbox-theme.scss')
   },
-  postcss: [autoprefixer],
+  postcss: [
+    require('autoprefixer'), // Automatically include vendor prefixes
+    require('postcss-nested'), // Enable nested rules, like in Sass
+  ],
   plugins: [
     new ExtractTextPlugin('style.css', { allChunks: true }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
-    new webpack.DefinePlugin({
-      'process.env': JSON.stringify('development')
-    })
-  ]
+  ],
 };
